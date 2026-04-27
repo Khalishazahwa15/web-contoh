@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ALS Go – Portal Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-badge">ALS</div>
+    <span>ALS GO</span>
+    <small>SISTEM INFORMASI</small>
+  </div>
+  <div class="sb-role">⚙️ ADMINISTRATOR SISTEM</div>
+  <nav class="sb-nav">
+    <div class="sb-section">Utama</div>
+    <div class="sb-item active" onclick="switchPane(this,'dashboard')"><span class="ic">📊</span> Dashboard</div>
+    <div class="sb-sep"></div>
+    <div class="sb-section">Manajemen Pengguna</div>
+    <div class="sb-item" onclick="switchPane(this,'user')"><span class="ic">👥</span> Data Pengguna</div>
+    <div class="sb-item" onclick="switchPane(this,'operator')"><span class="ic">🔧</span> Data Operator</div>
+    <div class="sb-item" onclick="switchPane(this,'hakakses')"><span class="ic">🔐</span> Hak Akses</div>
+    <div class="sb-sep"></div>
+    <div class="sb-section">Monitoring</div>
+    <div class="sb-item" onclick="switchPane(this,'transaksi')"><span class="ic">💰</span> Semua Transaksi</div>
+    <div class="sb-item" onclick="switchPane(this,'aktivitas')"><span class="ic">📋</span> Log Aktivitas</div>
+    <div class="sb-sep"></div>
+    <div class="sb-section">Sistem</div>
+    <div class="sb-item" onclick="switchPane(this,'konfigurasi')"><span class="ic">⚙️</span> Konfigurasi</div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user"><strong>Muhammad Ikhsan</strong>Super Administrator</div>
+    <div class="sb-logout">🚪 Keluar dari Sistem</div>
+    <div class="role-switch">Beralih: <a href="als-pelanggan.html">Pelanggan</a> · <a href="als-operator.html">Operator</a></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">DASHBOARD ADMINISTRATOR</div>
+    <div class="topbar-right">
+      <button class="tbtn warn">🚨 2 Gangguan Sistem</button>
+      <button class="tbtn">📥 Export Laporan</button>
+      <button class="tbtn">Rabu, 22 Apr 2026</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="tab-pane active" id="pane-dashboard">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="sc-icon">👥</div>
+          <div class="sc-num">1.248</div>
+          <div class="sc-label">Total Pengguna Terdaftar</div>
+          <div class="sc-trend up">▲ +34 minggu ini</div>
+          <div class="sc-bar"><div class="sc-bar-fill" style="width:78%;background:var(--g-main);"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">🎟️</div>
+          <div class="sc-num">4.823</div>
+          <div class="sc-label">Total Tiket Terjual</div>
+          <div class="sc-trend up">▲ +156 bulan ini</div>
+          <div class="sc-bar"><div class="sc-bar-fill" style="width:65%;background:var(--gold);"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">💰</div>
+          <div class="sc-num">Rp 1,2M</div>
+          <div class="sc-label">Pendapatan Bulan Ini</div>
+          <div class="sc-trend up">▲ +12% vs bulan lalu</div>
+          <div class="sc-bar"><div class="sc-bar-fill" style="width:82%;background:var(--blue);"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">⚠️</div>
+          <div class="sc-num">7</div>
+          <div class="sc-label">Tiket Pending Verifikasi</div>
+          <div class="sc-trend down">▼ Perlu ditindaklanjuti</div>
+          <div class="sc-bar"><div class="sc-bar-fill" style="width:22%;background:var(--red);"></div></div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-box">
+        <div class="chart-title">📈 TREN PEMESANAN TIKET (7 HARI TERAKHIR)</div>
+        <div class="bar-chart" id="barChart"></div>
+        <div style="display:flex;gap:16px;margin-top:10px;font-size:.72rem;color:var(--muted);">
+          <span style="color:var(--g-main);">■ Terkonfirmasi</span>
+          <span style="color:var(--warn);">■ Pending</span>
+          <span style="color:var(--red);">■ Dibatalkan</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <!-- Recent Users -->
+        <div class="card">
+          <div class="card-header"><h3>PENGGUNA TERBARU</h3><span style="font-size:.78rem;color:var(--muted);">5 terbaru</span></div>
+          <table>
+            <thead><tr><th>Nama</th><th>Peran</th><th>Bergabung</th></tr></thead>
+            <tbody>
+              <tr><td class="td-bold">Budi Santoso</td><td><span class="role-badge pelanggan">Pelanggan</span></td><td>22 Apr 2026</td></tr>
+              <tr><td class="td-bold">Siti Rahayu</td><td><span class="role-badge pelanggan">Pelanggan</span></td><td>21 Apr 2026</td></tr>
+              <tr><td class="td-bold">Andi Kurniawan</td><td><span class="role-badge operator">Operator</span></td><td>20 Apr 2026</td></tr>
+              <tr><td class="td-bold">Dewi Lestari</td><td><span class="role-badge pelanggan">Pelanggan</span></td><td>19 Apr 2026</td></tr>
+              <tr><td class="td-bold">Rizki Pratama</td><td><span class="role-badge pelanggan">Pelanggan</span></td><td>18 Apr 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-header"><h3>TRANSAKSI TERBARU</h3></div>
+          <table>
+            <thead><tr><th>Kode</th><th>Pelanggan</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="td-bold" style="font-family:'Bebas Neue',sans-serif;color:var(--g-main);letter-spacing:1px;">ALS-7K2P1A</td><td>Budi S.</td><td>Rp 360.000</td><td><span class="status-dot konfirmasi"><span class="dot"></span>OK</span></td></tr>
+              <tr><td class="td-bold" style="font-family:'Bebas Neue',sans-serif;color:var(--g-main);letter-spacing:1px;">ALS-3M9X5B</td><td>Siti R.</td><td>Rp 180.000</td><td><span class="status-dot pending"><span class="dot"></span>Pending</span></td></tr>
+              <tr><td class="td-bold" style="font-family:'Bebas Neue',sans-serif;color:var(--g-main);letter-spacing:1px;">ALS-1Q4R8C</td><td>Ahmad F.</td><td>Rp 480.000</td><td><span class="status-dot konfirmasi"><span class="dot"></span>OK</span></td></tr>
+              <tr><td class="td-bold" style="font-family:'Bebas Neue',sans-serif;color:var(--g-main);letter-spacing:1px;">ALS-9W6T2D</td><td>Dewi L.</td><td>Rp 320.000</td><td><span class="status-dot batal"><span class="dot"></span>Batal</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA PENGGUNA -->
+    <div class="tab-pane" id="pane-user">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Cari nama, email, NIK..."/>
+        <select class="filter-select"><option>Semua Peran</option><option>Pelanggan</option><option>Operator</option><option>Admin</option></select>
+        <select class="filter-select"><option>Semua Status</option><option>Aktif</option><option>Suspended</option></select>
+        <button class="add-btn" onclick="openModal('user')">+ Tambah Pengguna</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>MANAJEMEN DATA PENGGUNA</h3><span style="font-size:.78rem;color:var(--muted);">1.248 pengguna</span></div>
+        <table>
+          <thead><tr><th>Nama</th><th>Email</th><th>No. HP</th><th>Peran</th><th>Bergabung</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="userTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DATA OPERATOR -->
+    <div class="tab-pane" id="pane-operator">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Cari operator, cabang..."/>
+        <button class="add-btn" onclick="openModal('operator')">+ Tambah Operator</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>MANAJEMEN OPERATOR / PETUGAS PO</h3></div>
+        <table>
+          <thead><tr><th>Nama</th><th>Email</th><th>Cabang</th><th>Tugas</th><th>Bergabung</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="operatorTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HAK AKSES -->
+    <div class="tab-pane" id="pane-hakakses">
+      <div class="card">
+        <div class="card-header"><h3>MATRIKS HAK AKSES SISTEM</h3></div>
+        <table>
+          <thead><tr><th>Fitur / Menu</th><th style="text-align:center;">👤 Pelanggan</th><th style="text-align:center;">🔧 Operator</th><th style="text-align:center;">⚙️ Admin</th></tr></thead>
+          <tbody id="hakTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SEMUA TRANSAKSI -->
+    <div class="tab-pane" id="pane-transaksi">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Cari kode tiket, penumpang..."/>
+        <select class="filter-select"><option>Semua Status</option><option>Terkonfirmasi</option><option>Menunggu</option><option>Dibatalkan</option></select>
+        <button class="tbtn" style="background:var(--g-main);color:#fff;border-color:var(--g-main);">📥 Export CSV</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>SEMUA TRANSAKSI PEMESANAN</h3><span style="font-size:.78rem;color:var(--muted);">4.823 total transaksi</span></div>
+        <table>
+          <thead><tr><th>Kode Tiket</th><th>Penumpang</th><th>Rute</th><th>Tanggal</th><th>Kursi</th><th>Total</th><th>Pembayaran</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="transaksiTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOG AKTIVITAS -->
+    <div class="tab-pane" id="pane-aktivitas">
+      <div class="card">
+        <div class="card-header"><h3>LOG AKTIVITAS SISTEM</h3><button class="tbtn">🗑️ Bersihkan Log</button></div>
+        <div style="padding:0 20px;" id="logList"></div>
+      </div>
+    </div>
+
+    <!-- KONFIGURASI -->
+    <div class="tab-pane" id="pane-konfigurasi">
+      <div class="settings-grid">
+        <div class="setting-card">
+          <h4>⚙️ PENGATURAN UMUM</h4>
+          <div class="setting-row"><label>Mode Maintenance</label><label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>Registrasi Pengguna</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>Notifikasi Email</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>Notifikasi WhatsApp</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <button class="save-setting-btn">Simpan Pengaturan</button>
+        </div>
+        <div class="setting-card">
+          <h4>💳 PEMBAYARAN</h4>
+          <div class="setting-row"><label>Transfer Bank</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>QRIS</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>OVO / GoPay / Dana</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>Batas Bayar (jam)</label><input class="setting-input" type="number" value="2"/></div>
+          <button class="save-setting-btn">Simpan Pembayaran</button>
+        </div>
+        <div class="setting-card">
+          <h4>🎟️ KEBIJAKAN TIKET</h4>
+          <div class="setting-row"><label>Maks kursi per transaksi</label><input class="setting-input" type="number" value="4"/></div>
+          <div class="setting-row"><label>Batas pesan (hari ke depan)</label><input class="setting-input" type="number" value="30"/></div>
+          <div class="setting-row"><label>Refund otomatis (batal)</label><label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+          <button class="save-setting-btn">Simpan Kebijakan</button>
+        </div>
+        <div class="setting-card">
+          <h4>🔒 KEAMANAN</h4>
+          <div class="setting-row"><label>Two-Factor Auth (Admin)</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="setting-row"><label>Session Timeout (menit)</label><input class="setting-input" type="number" value="60"/></div>
+          <div class="setting-row"><label>Blokir login gagal (3x)</label><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <button class="save-setting-btn">Simpan Keamanan</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-hdr"><h2 id="modalTitle">TAMBAH DATA</h2><button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const USERS=[
+  {nama:'Budi Santoso',email:'budi@email.com',hp:'081234567890',peran:'Pelanggan',join:'22 Apr 2026',status:'Aktif'},
+  {nama:'Siti Rahayu',email:'siti@email.com',hp:'082345678901',peran:'Pelanggan',join:'21 Apr 2026',status:'Aktif'},
+  {nama:'Andi Kurniawan',email:'andi@als.co.id',hp:'083456789012',peran:'Operator',join:'20 Apr 2026',status:'Aktif'},
+  {nama:'Dewi Lestari',email:'dewi@email.com',hp:'084567890123',peran:'Pelanggan',join:'19 Apr 2026',status:'Aktif'},
+  {nama:'Joko Susilo',email:'joko@email.com',hp:'085678901234',peran:'Pelanggan',join:'15 Apr 2026',status:'Suspended'},
+  {nama:'Muhammad Ikhsan',email:'ikhsan@als.co.id',hp:'086789012345',peran:'Admin',join:'01 Jan 2025',status:'Aktif'},
+];
+
+const OPERATORS=[
+  {nama:'Andi Kurniawan',email:'andi@als.co.id',cabang:'Bandar Lampung',tugas:'Bus & Jadwal',join:'20 Apr 2026',status:'Aktif'},
+  {nama:'Rudi Hartono',email:'rudi@als.co.id',cabang:'Jakarta',tugas:'Verifikasi',join:'15 Mar 2026',status:'Aktif'},
+  {nama:'Mega Wulandari',email:'mega@als.co.id',cabang:'Medan',tugas:'Penumpang',join:'10 Feb 2026',status:'Aktif'},
+  {nama:'Bima Saputra',email:'bima@als.co.id',cabang:'Padang',tugas:'Bus & Jadwal',join:'05 Jan 2026',status:'Non-aktif'},
+];
+
+const HAK=[
+  {fitur:'Cari Jadwal & Rute',pelanggan:true,operator:true,admin:true},
+  {fitur:'Pesan Tiket',pelanggan:true,operator:false,admin:true},
+  {fitur:'Pilih Bangku',pelanggan:true,operator:false,admin:true},
+  {fitur:'Riwayat Transaksi Sendiri',pelanggan:true,operator:false,admin:true},
+  {fitur:'Input & Update Data Bus',pelanggan:false,operator:true,admin:true},
+  {fitur:'Atur Jadwal Keberangkatan',pelanggan:false,operator:true,admin:true},
+  {fitur:'Kelola Ketersediaan Kursi',pelanggan:false,operator:true,admin:true},
+  {fitur:'Verifikasi Data Penumpang',pelanggan:false,operator:true,admin:true},
+  {fitur:'Lihat Semua Pemesanan',pelanggan:false,operator:true,admin:true},
+  {fitur:'Kelola Semua Pengguna',pelanggan:false,operator:false,admin:true},
+  {fitur:'Atur Hak Akses',pelanggan:false,operator:false,admin:true},
+  {fitur:'Monitor Log Aktivitas',pelanggan:false,operator:false,admin:true},
+  {fitur:'Konfigurasi Sistem',pelanggan:false,operator:false,admin:true},
+  {fitur:'Export Laporan',pelanggan:false,operator:false,admin:true},
+];
+
+const TRANSAKSI=[
+  {code:'ALS-7K2P1A',nama:'Budi Santoso',from:'Lampung',to:'Jakarta',tgl:'22 Apr 2026',kursi:['14','15'],total:360000,pay:'QRIS',status:'Terkonfirmasi'},
+  {code:'ALS-3M9X5B',nama:'Siti Rahayu',from:'Lampung',to:'Jakarta',tgl:'23 Apr 2026',kursi:['3'],total:180000,pay:'BCA',status:'Menunggu'},
+  {code:'ALS-1Q4R8C',nama:'Ahmad Fadli',from:'Lampung',to:'Padang',tgl:'24 Apr 2026',kursi:['7','8'],total:480000,pay:'GoPay',status:'Terkonfirmasi'},
+  {code:'ALS-9W6T2D',nama:'Dewi Lestari',from:'Jakarta',to:'Medan',tgl:'25 Apr 2026',kursi:['5'],total:320000,pay:'Dana',status:'Dibatalkan'},
+  {code:'ALS-2R5T9E',nama:'Rizki Pratama',from:'Lampung',to:'Jakarta',tgl:'22 Apr 2026',kursi:['21'],total:180000,pay:'BRI',status:'Menunggu'},
+];
+
+const LOGS=[
+  {type:'success',icon:'✅',msg:'Tiket ALS-7K2P1A berhasil dikonfirmasi',user:'Sistem',time:'22 Apr 2026 · 10:45'},
+  {type:'warn',icon:'⚠️',msg:'Gagal kirim notifikasi email ke siti@email.com',user:'Sistem',time:'22 Apr 2026 · 10:30'},
+  {type:'info',icon:'👤',msg:'Pengguna baru terdaftar: Budi Santoso',user:'Sistem',time:'22 Apr 2026 · 09:22'},
+  {type:'success',icon:'💳',msg:'Pembayaran QRIS Rp 360.000 diterima',user:'Payment Gateway',time:'22 Apr 2026 · 09:18'},
+  {type:'error',icon:'🚨',msg:'Login gagal 3x untuk akun joko@email.com – akun disuspend',user:'Auth System',time:'21 Apr 2026 · 23:55'},
+  {type:'info',icon:'📅',msg:'Jadwal 07.00 Lampung→Jakarta diperbarui oleh Andi Kurniawan',user:'Operator',time:'21 Apr 2026 · 14:10'},
+  {type:'success',icon:'🚌',msg:'Bus B-3312-ALS berhasil ditambahkan ke armada',user:'Andi Kurniawan',time:'20 Apr 2026 · 11:00'},
+  {type:'warn',icon:'💺',msg:'Ketersediaan kursi bus B-0934-ALS: 100% penuh',user:'Sistem',time:'20 Apr 2026 · 08:30'},
+];
+
+const CHART_DATA=[
+  {day:'Jum',val:42,p:80},{day:'Sab',val:67,p:100},{day:'Min',val:38,p:72},{day:'Sen',val:55,p:85},
+  {day:'Sel',val:48,p:75},{day:'Rab',val:29,p:55},{day:'Kam',val:74,p:100},
+];
+
+// ── RENDER ──
+function renderUsers(){
+  document.getElementById('userTbody').innerHTML=USERS.map(u=>`
+    <tr>
+      <td class="td-bold">${u.nama}</td>
+      <td style="color:var(--muted);">${u.email}</td>
+      <td>${u.hp}</td>
+      <td><span class="role-badge ${u.peran.toLowerCase()}">${u.peran}</span></td>
+      <td>${u.join}</td>
+      <td><span class="status-dot ${u.status==='Aktif'?'aktif':'suspend'}"><span class="dot"></span>${u.status}</span></td>
+      <td><div class="act-btns">
+        <button class="act-btn edit">Edit</button>
+        <button class="act-btn hak">Akses</button>
+        <button class="act-btn suspend">${u.status==='Aktif'?'Suspend':'Aktifkan'}</button>
+        <button class="act-btn del">Hapus</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderOperators(){
+  document.getElementById('operatorTbody').innerHTML=OPERATORS.map(op=>`
+    <tr>
+      <td class="td-bold">${op.nama}</td>
+      <td style="color:var(--muted);">${op.email}</td>
+      <td>${op.cabang}</td>
+      <td>${op.tugas}</td>
+      <td>${op.join}</td>
+      <td><span class="status-dot ${op.status==='Aktif'?'aktif':'nonaktif'}"><span class="dot"></span>${op.status}</span></td>
+      <td><div class="act-btns">
+        <button class="act-btn edit">Edit</button>
+        <button class="act-btn hak">Akses</button>
+        <button class="act-btn del">Hapus</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderHak(){
+  document.getElementById('hakTbody').innerHTML=HAK.map(h=>`
+    <tr>
+      <td class="td-bold">${h.fitur}</td>
+      <td style="text-align:center;">${h.pelanggan?'<span style="color:var(--g-main);font-size:1.1rem;">✓</span>':'<span style="color:#ccc;">—</span>'}</td>
+      <td style="text-align:center;">${h.operator?'<span style="color:var(--g-main);font-size:1.1rem;">✓</span>':'<span style="color:#ccc;">—</span>'}</td>
+      <td style="text-align:center;">${h.admin?'<span style="color:var(--purple);font-size:1.1rem;">✓</span>':'<span style="color:#ccc;">—</span>'}</td>
+    </tr>`).join('');
+}
+
+function renderTransaksi(){
+  document.getElementById('transaksiTbody').innerHTML=TRANSAKSI.map(t=>`
+    <tr>
+      <td class="td-bold" style="font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--g-main);">${t.code}</td>
+      <td>${t.nama}</td>
+      <td>${t.from}→${t.to}</td>
+      <td>${t.tgl}</td>
+      <td>${t.kursi.join(',')}</td>
+      <td style="font-weight:700;color:var(--g-main);">Rp ${t.total.toLocaleString('id-ID')}</td>
+      <td>${t.pay}</td>
+      <td><span class="status-dot ${t.status==='Terkonfirmasi'?'konfirmasi':t.status==='Menunggu'?'pending':'batal'}"><span class="dot"></span>${t.status}</span></td>
+      <td><button class="act-btn view">Detail</button></td>
+    </tr>`).join('');
+}
+
+function renderLogs(){
+  document.getElementById('logList').innerHTML=LOGS.map(l=>`
+    <div class="log-item">
+      <div class="log-icon ${l.type}">${l.icon}</div>
+      <div><div class="log-meta"><strong>${l.msg}</strong>Oleh: ${l.user} · ${l.time}</div></div>
+    </div>`).join('');
+}
+
+function renderChart(){
+  const max=Math.max(...CHART_DATA.map(d=>d.val));
+  document.getElementById('barChart').innerHTML=CHART_DATA.map(d=>{
+    const h=Math.round((d.val/max)*120);
+    return `<div class="bar-col">
+      <div class="bar-val">${d.val}</div>
+      <div class="bar" style="height:${h}px;background:linear-gradient(180deg,var(--g-light),var(--g-main));" title="${d.val} tiket"></div>
+      <div class="bar-label">${d.day}</div>
+    </div>`;
+  }).join('');
+}
+
+// Sidebar
+function switchPane(el,pane){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+pane).classList.add('active');
+  const titles={dashboard:'DASHBOARD ADMINISTRATOR',user:'MANAJEMEN DATA PENGGUNA',operator:'MANAJEMEN OPERATOR',hakakses:'HAK AKSES SISTEM',transaksi:'SEMUA TRANSAKSI',aktivitas:'LOG AKTIVITAS SISTEM',konfigurasi:'KONFIGURASI SISTEM'};
+  document.getElementById('topbarTitle').textContent=titles[pane]||'ADMIN';
+  if(pane==='user')renderUsers();
+  if(pane==='operator')renderOperators();
+  if(pane==='hakakses')renderHak();
+  if(pane==='transaksi')renderTransaksi();
+  if(pane==='aktivitas')renderLogs();
+}
+
+// Modal
+const FORMS={
+  user:`<div class="form-row"><div class="mf"><label>Nama Lengkap</label><input placeholder="Nama"/></div><div class="mf"><label>Email</label><input type="email" placeholder="email@domain.com"/></div></div>
+    <div class="form-row"><div class="mf"><label>No. HP</label><input placeholder="08xxx"/></div><div class="mf"><label>Peran</label><select><option>Pelanggan</option><option>Operator</option><option>Admin</option></select></div></div>
+    <div class="form-row full"><div class="mf"><label>Password Awal</label><input type="password" placeholder="Min. 8 karakter"/></div></div>
+    <button class="save-btn" onclick="closeModal();alert('Pengguna berhasil ditambahkan!')">💾 Tambah Pengguna</button>`,
+  operator:`<div class="form-row"><div class="mf"><label>Nama</label><input placeholder="Nama Operator"/></div><div class="mf"><label>Email</label><input type="email" placeholder="email@als.co.id"/></div></div>
+    <div class="form-row"><div class="mf"><label>Cabang</label><select><option>Bandar Lampung</option><option>Jakarta</option><option>Medan</option><option>Padang</option><option>Pekanbaru</option></select></div><div class="mf"><label>Tugas Utama</label><select><option>Bus & Jadwal</option><option>Verifikasi</option><option>Penumpang</option><option>Semua</option></select></div></div>
+    <div class="form-row full"><div class="mf"><label>Password Awal</label><input type="password" placeholder="Min. 8 karakter"/></div></div>
+    <button class="save-btn" onclick="closeModal();alert('Operator berhasil ditambahkan!')">💾 Tambah Operator</button>`,
+};
+function openModal(type){
+  const titles={user:'TAMBAH PENGGUNA',operator:'TAMBAH OPERATOR'};
+  document.getElementById('modalTitle').textContent=titles[type]||'TAMBAH';
+  document.getElementById('modalBody').innerHTML=FORMS[type]||'';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))closeModal();});
+
+// Init
+renderChart();
+</script>
+</body>
+</html>

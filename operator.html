@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ALS Go – Portal Operator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --g-dark:#082b15;--g-mid:#0f4a25;--g-main:#16793a;--g-light:#20a050;
+  --gold:#f0b429;--gold-l:#ffd166;--cream:#f4f9f5;--white:#fff;
+  --txt:#0d1f14;--muted:#5a7a65;--border:#d4e8dc;
+  --red:#e74c3c;--red-l:#ffeaea;--blue:#2980b9;--blue-l:#eaf4fb;
+  --warn:#e67e22;--warn-l:#fff3e0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f4f1;color:var(--txt);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--g-dark);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+.sb-brand{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-badge{background:var(--gold);color:var(--g-dark);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;width:36px;height:36px;border-radius:7px;display:grid;place-items:center;margin-bottom:8px;}
+.sb-brand span{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;letter-spacing:2px;display:block;}
+.sb-brand small{font-size:.65rem;color:rgba(255,255,255,.45);letter-spacing:1px;}
+.sb-role{background:rgba(240,180,41,.12);border:1px solid rgba(240,180,41,.25);border-radius:6px;padding:6px 10px;margin:10px 16px;font-size:.72rem;color:var(--gold-l);font-weight:700;text-align:center;}
+.sb-nav{flex:1;padding:8px 0;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 16px;color:rgba(255,255,255,.6);font-size:.83rem;font-weight:600;cursor:pointer;transition:.18s;border-left:3px solid transparent;}
+.sb-item .ic{width:18px;text-align:center;font-size:.95rem;}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);}
+.sb-item.active{background:rgba(32,160,80,.15);color:var(--g-glow,#2ecc71);border-left-color:var(--g-light);}
+.sb-sep{height:1px;background:rgba(255,255,255,.06);margin:8px 0;}
+.sb-bottom{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);}
+.sb-user{font-size:.78rem;color:rgba(255,255,255,.6);}
+.sb-user strong{color:var(--gold-l);display:block;margin-bottom:2px;}
+.sb-logout{display:flex;align-items:center;gap:6px;margin-top:8px;color:rgba(255,255,255,.4);font-size:.75rem;cursor:pointer;transition:.2s;}
+.sb-logout:hover{color:rgba(255,255,255,.8);}
+.role-switch{font-size:.7rem;color:rgba(255,255,255,.35);margin-top:10px;}
+.role-switch a{color:var(--gold-l);text-decoration:none;}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:#fff;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);box-shadow:0 1px 8px rgba(8,43,21,.06);}
+.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--g-dark);letter-spacing:1px;}
+.topbar-right{display:flex;gap:10px;align-items:center;}
+.notif-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:.8rem;cursor:pointer;color:var(--muted);}
+
+/* CONTENT */
+.content{padding:24px 28px;flex:1;}
+.tab-bar{display:flex;gap:4px;background:#fff;padding:4px;border-radius:10px;margin-bottom:22px;width:fit-content;box-shadow:0 2px 8px rgba(8,43,21,.07);}
+.tab-btn{border:none;background:none;padding:8px 18px;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.82rem;color:var(--muted);cursor:pointer;transition:.18s;}
+.tab-btn.active{background:var(--g-main);color:#fff;}
+.tab-btn:hover:not(.active){background:var(--cream);}
+
+.tab-pane{display:none;}
+.tab-pane.active{display:block;animation:fadeUp .3s ease;}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(8,43,21,.07);border-left:4px solid var(--g-light);}
+.stat-card.warn{border-left-color:var(--warn);}
+.stat-card.red{border-left-color:var(--red);}
+.stat-card.blue{border-left-color:var(--blue);}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--g-dark);letter-spacing:1px;}
+.stat-label{font-size:.75rem;color:var(--muted);font-weight:600;margin-top:2px;}
+
+/* TABLE */
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(8,43,21,.07);overflow:hidden;margin-bottom:20px;}
+.card-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--cream);}
+.card-header h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--g-dark);letter-spacing:1px;}
+.add-btn{background:var(--g-main);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:.18s;}
+.add-btn:hover{background:var(--g-light);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--cream);}
+th{padding:11px 16px;text-align:left;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+tbody tr{border-bottom:1px solid var(--cream);transition:.15s;}
+tbody tr:hover{background:#f8fdf9;}
+td{padding:12px 16px;font-size:.85rem;color:var(--txt);}
+.td-bold{font-weight:700;}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700;}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;}
+.status-dot.aktif{color:#0d7a3a;}
+.status-dot.nonaktif{color:#aaa;}
+.status-dot.penuh{color:var(--red);}
+.status-dot.pending{color:var(--warn);}
+.status-dot.konfirmasi{color:var(--g-main);}
+.status-dot.batal{color:var(--red);}
+.act-btns{display:flex;gap:6px;}
+.act-btn{border:none;border-radius:6px;padding:5px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:.15s;}
+.act-btn.edit{background:var(--blue-l);color:var(--blue);}
+.act-btn.edit:hover{background:var(--blue);color:#fff;}
+.act-btn.del{background:var(--red-l);color:var(--red);}
+.act-btn.del:hover{background:var(--red);color:#fff;}
+.act-btn.view{background:rgba(22,121,58,.1);color:var(--g-main);}
+.act-btn.view:hover{background:var(--g-main);color:#fff;}
+.act-btn.verif{background:var(--warn-l);color:var(--warn);}
+.act-btn.verif:hover{background:var(--warn);color:#fff;}
+
+/* SEATS VISUAL */
+.seats-mini{display:flex;flex-wrap:wrap;gap:3px;}
+.sm-seat{width:20px;height:20px;border-radius:4px;background:rgba(22,121,58,.15);color:var(--g-main);font-size:.6rem;font-weight:700;display:grid;place-items:center;}
+.sm-seat.taken{background:rgba(231,76,60,.12);color:var(--red);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(5,20,10,.55);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.overlay.open{display:flex;animation:fadeIn .2s ease;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;overflow:hidden;animation:fadeUp .3s ease;}
+.modal-hdr{background:linear-gradient(135deg,var(--g-dark),var(--g-main));padding:16px 22px;display:flex;justify-content:space-between;align-items:center;}
+.modal-hdr h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fff;letter-spacing:2px;}
+.modal-x{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.2rem;cursor:pointer;}
+.modal-body{padding:22px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row.full{grid-template-columns:1fr;}
+.mf{display:flex;flex-direction:column;gap:4px;}
+.mf label{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+.mf input,.mf select{border:2px solid var(--border);border-radius:8px;padding:9px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;color:var(--txt);background:var(--cream);outline:none;transition:.2s;}
+.mf input:focus,.mf select:focus{border-color:var(--g-main);background:#fff;}
+.save-btn{width:100%;margin-top:14px;background:linear-gradient(135deg,var(--g-light),var(--g-main));color:#fff;border:none;border-radius:9px;padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;}
+
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap;}
+.search-input{border:2px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;outline:none;background:#fff;min-width:200px;transition:.2s;}
+.search-input:focus{border-color:var(--g-main);}
+.filter-select{border:2px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;background:#fff;outline:none;color:var(--muted);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-badge">ALS</div>
+    <span>ALS GO</span>
+    <small>SISTEM INFORMASI</small>
+  </div>
+  <div class="sb-role">🔧 OPERATOR / PETUGAS PO</div>
+  <nav class="sb-nav">
+    <div class="sb-item active" onclick="switchSidebar(this,'dashboard')"><span class="ic">📊</span> Dashboard</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item" onclick="switchSidebar(this,'bus')"><span class="ic">🚌</span> Data Bus</div>
+    <div class="sb-item" onclick="switchSidebar(this,'jadwal')"><span class="ic">📅</span> Jadwal Keberangkatan</div>
+    <div class="sb-item" onclick="switchSidebar(this,'kursi')"><span class="ic">💺</span> Ketersediaan Kursi</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item" onclick="switchSidebar(this,'pemesanan')"><span class="ic">🎟️</span> Data Pemesanan</div>
+    <div class="sb-item" onclick="switchSidebar(this,'penumpang')"><span class="ic">👤</span> Verifikasi Penumpang</div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user"><strong>Andi Kurniawan</strong>Operator Cabang Lampung</div>
+    <div class="sb-logout" onclick="alert('Keluar...')">🚪 Keluar</div>
+    <div class="role-switch">Beralih ke: <a href="als-pelanggan.html">Pelanggan</a> · <a href="als-admin.html">Admin</a></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">DASHBOARD OPERATOR</div>
+    <div class="topbar-right">
+      <button class="notif-btn">🔔 3 Notifikasi</button>
+      <button class="notif-btn" style="color:var(--g-main);border-color:var(--g-main);">Rabu, 22 Apr 2026</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="tab-pane active" id="pane-dashboard">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">🚌 Total Armada Bus</div></div>
+        <div class="stat-card warn"><div class="stat-num">48</div><div class="stat-label">📅 Jadwal Hari Ini</div></div>
+        <div class="stat-card"><div class="stat-num">156</div><div class="stat-label">🎟️ Tiket Terjual Bulan Ini</div></div>
+        <div class="stat-card red"><div class="stat-num">7</div><div class="stat-label">⏳ Menunggu Verifikasi</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>JADWAL KEBERANGKATAN HARI INI</h3><span style="font-size:.8rem;color:var(--muted);">22 April 2026</span></div>
+        <table>
+          <thead><tr><th>No. Bus</th><th>Rute</th><th>Berangkat</th><th>Kelas</th><th>Terisi/Total</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">B-2241-ALS</td><td>Lampung → Jakarta</td><td>07.00</td><td>Bisnis AC</td><td>28/32</td><td><span class="status-dot aktif"><span class="dot"></span>Berangkat</span></td></tr>
+            <tr><td class="td-bold">B-1875-ALS</td><td>Lampung → Jakarta</td><td>14.00</td><td>Executive</td><td>20/24</td><td><span class="status-dot aktif"><span class="dot"></span>Siap</span></td></tr>
+            <tr><td class="td-bold">B-0934-ALS</td><td>Jakarta → Medan</td><td>19.00</td><td>VIP DD</td><td>20/20</td><td><span class="status-dot penuh"><span class="dot"></span>Penuh</span></td></tr>
+            <tr><td class="td-bold">B-3312-ALS</td><td>Lampung → Padang</td><td>22.00</td><td>Bisnis AC</td><td>14/32</td><td><span class="status-dot nonaktif"><span class="dot"></span>Menunggu</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DATA BUS -->
+    <div class="tab-pane" id="pane-bus">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Cari nomor bus, merek..."/>
+        <select class="filter-select"><option>Semua Status</option><option>Aktif</option><option>Perawatan</option><option>Non-aktif</option></select>
+        <button class="add-btn" onclick="openModal('bus')">+ Tambah Bus</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>DATA ARMADA BUS</h3><span class="stat-label">12 bus terdaftar</span></div>
+        <table>
+          <thead><tr><th>No. Polisi</th><th>Merek/Tipe</th><th>Kelas</th><th>Kapasitas</th><th>Tahun</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="busTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JADWAL -->
+    <div class="tab-pane" id="pane-jadwal">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Cari rute, kota..."/>
+        <select class="filter-select"><option>Semua Hari</option><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option></select>
+        <button class="add-btn" onclick="openModal('jadwal')">+ Tambah Jadwal</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>JADWAL KEBERANGKATAN</h3></div>
+        <table>
+          <thead><tr><th>Rute</th><th>Bus</th><th>Berangkat</th><th>Tiba (est.)</th><th>Kelas</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="jadwalTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- KURSI -->
+    <div class="tab-pane" id="pane-kursi">
+      <div class="search-bar">
+        <select class="filter-select" id="kursiFilter" onchange="renderKursi()">
+          <option value="all">Semua Jadwal</option>
+          <option value="S01">07.00 Lampung→Jakarta Bisnis AC</option>
+          <option value="S02">09.30 Lampung→Jakarta Executive</option>
+          <option value="S03">14.00 Lampung→Jakarta Bisnis AC</option>
+          <option value="S04">19.00 Lampung→Medan VIP DD</option>
+        </select>
+      </div>
+      <div id="kursiCards"></div>
+    </div>
+
+    <!-- PEMESANAN -->
+    <div class="tab-pane" id="pane-pemesanan">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Cari kode tiket, nama..."/>
+        <select class="filter-select"><option>Semua Status</option><option>Terkonfirmasi</option><option>Menunggu</option><option>Dibatalkan</option></select>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>DATA PEMESANAN TIKET</h3></div>
+        <table>
+          <thead><tr><th>Kode Tiket</th><th>Penumpang</th><th>Rute</th><th>Tgl Berangkat</th><th>Kursi</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="pemesananTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VERIFIKASI -->
+    <div class="tab-pane" id="pane-penumpang">
+      <div class="card">
+        <div class="card-header"><h3>VERIFIKASI DATA PENUMPANG</h3><span style="background:var(--warn-l);color:var(--warn);padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:800;">7 Menunggu Verifikasi</span></div>
+        <table>
+          <thead><tr><th>Kode Tiket</th><th>Nama</th><th>NIK</th><th>Rute</th><th>Bangku</th><th>Pembayaran</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="verifTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="modalTitle">TAMBAH DATA</h2>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const BUS_DATA=[
+  {id:'B01',polisi:'B-2241-ALS',merek:'Mercedes-Benz OH 1626',kelas:'Bisnis AC',kapasitas:32,tahun:2022,status:'Aktif'},
+  {id:'B02',polisi:'B-1875-ALS',merek:'Mercedes-Benz OH 1526',kelas:'Executive Sleeper',kapasitas:24,tahun:2021,status:'Aktif'},
+  {id:'B03',polisi:'B-0934-ALS',merek:'Mercedes-Benz OC 500',kelas:'VIP Double Decker',kapasitas:20,tahun:2023,status:'Aktif'},
+  {id:'B04',polisi:'B-3312-ALS',merek:'Mercedes-Benz OH 1626',kelas:'Bisnis AC',kapasitas:32,tahun:2020,status:'Aktif'},
+  {id:'B05',polisi:'B-4421-ALS',merek:'Hino RK8',kelas:'Bisnis AC',kapasitas:32,tahun:2019,status:'Perawatan'},
+  {id:'B06',polisi:'B-5567-ALS',merek:'Mercedes-Benz OH 1526',kelas:'Executive Sleeper',kapasitas:24,tahun:2022,status:'Aktif'},
+];
+
+const JADWAL_DATA=[
+  {id:'J01',from:'Bandar Lampung',to:'Jakarta',bus:'B-2241-ALS',dep:'07.00',arr:'15.00',kelas:'Bisnis AC',harga:180000,status:'Aktif'},
+  {id:'J02',from:'Bandar Lampung',to:'Jakarta',bus:'B-1875-ALS',dep:'09.30',arr:'17.30',kelas:'Executive Sleeper',harga:240000,status:'Aktif'},
+  {id:'J03',from:'Bandar Lampung',to:'Jakarta',bus:'B-3312-ALS',dep:'14.00',arr:'22.00',kelas:'Bisnis AC',harga:180000,status:'Aktif'},
+  {id:'J04',from:'Bandar Lampung',to:'Medan',bus:'B-0934-ALS',dep:'19.00',arr:'07.00+1',kelas:'VIP Double Decker',harga:320000,status:'Aktif'},
+  {id:'J05',from:'Jakarta',to:'Padang',bus:'B-6677-ALS',dep:'22.00',arr:'06.00+1',kelas:'Bisnis AC',harga:380000,status:'Non-aktif'},
+];
+
+const KURSI_DATA=[
+  {id:'S01',label:'07.00 Lampung→Jakarta Bisnis AC',bus:'B-2241-ALS',total:32,taken:[3,7,12,15,20,25,28]},
+  {id:'S02',label:'09.30 Lampung→Jakarta Executive',bus:'B-1875-ALS',total:24,taken:[1,4,8,11,16,19,22]},
+  {id:'S03',label:'14.00 Lampung→Jakarta Bisnis AC',bus:'B-3312-ALS',total:32,taken:[5,9,13,22,27]},
+  {id:'S04',label:'19.00 Lampung→Medan VIP DD',bus:'B-0934-ALS',total:20,taken:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},
+];
+
+const PEMESANAN_DATA=[
+  {code:'ALS-7K2P1A',nama:'Budi Santoso',nik:'187401..001',from:'Bandar Lampung',to:'Jakarta',tgl:'22 Apr 2026',dep:'22.00',kursi:['14','15'],total:360000,status:'Terkonfirmasi'},
+  {code:'ALS-3M9X5B',nama:'Siti Rahayu',nik:'187401..002',from:'Bandar Lampung',to:'Jakarta',tgl:'23 Apr 2026',dep:'07.00',kursi:['3'],total:180000,status:'Menunggu'},
+  {code:'ALS-1Q4R8C',nama:'Ahmad Fadli',nik:'187401..003',from:'Bandar Lampung',to:'Padang',tgl:'24 Apr 2026',dep:'09.30',kursi:['7','8'],total:480000,status:'Terkonfirmasi'},
+  {code:'ALS-9W6T2D',nama:'Dewi Lestari',nik:'187401..004',from:'Jakarta',to:'Medan',tgl:'25 Apr 2026',dep:'19.00',kursi:['5'],total:320000,status:'Dibatalkan'},
+  {code:'ALS-2R5T9E',nama:'Rizki Pratama',nik:'187401..005',from:'Bandar Lampung',to:'Jakarta',tgl:'22 Apr 2026',dep:'14.00',kursi:['21'],total:180000,status:'Menunggu'},
+];
+
+const VERIF_DATA=[
+  {code:'ALS-3M9X5B',nama:'Siti Rahayu',nik:'3174010203040002',from:'Bandar Lampung',to:'Jakarta',kursi:'3',pay:'QRIS',status:'Menunggu'},
+  {code:'ALS-2R5T9E',nama:'Rizki Pratama',nik:'3174010203040005',from:'Bandar Lampung',to:'Jakarta',kursi:'21',pay:'Transfer BCA',status:'Menunggu'},
+  {code:'ALS-8P1L3F',nama:'Hendra Wijaya',nik:'3174010203040006',from:'Bandar Lampung',to:'Medan',kursi:'12',pay:'OVO',status:'Menunggu'},
+  {code:'ALS-7K2P1A',nama:'Budi Santoso',nik:'3174010203040001',from:'Bandar Lampung',to:'Jakarta',kursi:'14,15',pay:'QRIS',status:'Terverifikasi'},
+  {code:'ALS-1Q4R8C',nama:'Ahmad Fadli',nik:'3174010203040003',from:'Bandar Lampung',to:'Padang',kursi:'7,8',pay:'GoPay',status:'Terverifikasi'},
+];
+
+// ── RENDER ──
+function renderBus(){
+  document.getElementById('busTbody').innerHTML=BUS_DATA.map(b=>`
+    <tr>
+      <td class="td-bold">${b.polisi}</td>
+      <td>${b.merek}</td>
+      <td>${b.kelas}</td>
+      <td>${b.kapasitas} kursi</td>
+      <td>${b.tahun}</td>
+      <td><span class="status-dot ${b.status==='Aktif'?'aktif':b.status==='Perawatan'?'warn':'nonaktif'}"><span class="dot"></span>${b.status}</span></td>
+      <td><div class="act-btns">
+        <button class="act-btn edit" onclick="openModal('editbus','${b.id}')">Edit</button>
+        <button class="act-btn del" onclick="hapus('bus','${b.id}')">Hapus</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderJadwal(){
+  document.getElementById('jadwalTbody').innerHTML=JADWAL_DATA.map(j=>`
+    <tr>
+      <td class="td-bold">${j.from} → ${j.to}</td>
+      <td>${j.bus}</td>
+      <td>${j.dep}</td>
+      <td>${j.arr}</td>
+      <td>${j.kelas}</td>
+      <td>Rp ${j.harga.toLocaleString('id-ID')}</td>
+      <td><span class="status-dot ${j.status==='Aktif'?'aktif':'nonaktif'}"><span class="dot"></span>${j.status}</span></td>
+      <td><div class="act-btns">
+        <button class="act-btn edit">Edit</button>
+        <button class="act-btn del">Hapus</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderKursi(){
+  const filter=document.getElementById('kursiFilter').value;
+  const data=filter==='all'?KURSI_DATA:KURSI_DATA.filter(k=>k.id===filter);
+  document.getElementById('kursiCards').innerHTML=data.map(k=>{
+    const avail=k.total-k.taken.length;
+    const pct=Math.round((k.taken.length/k.total)*100);
+    let seats='';
+    for(let i=1;i<=k.total;i++){
+      const t=k.taken.includes(i);
+      seats+=`<div class="sm-seat ${t?'taken':''}" title="Kursi ${i}">${i}</div>`;
+    }
+    return `<div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <h3>${k.label}</h3>
+        <span style="font-size:.8rem;color:var(--muted);">Bus ${k.bus} · ${avail} tersedia · ${pct}% terisi</span>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="background:var(--cream);border-radius:8px;height:8px;margin-bottom:14px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${pct>=90?'var(--red)':pct>=60?'var(--warn)':'var(--g-main)'};border-radius:8px;"></div>
+        </div>
+        <div class="seats-mini">${seats}</div>
+        <div style="margin-top:12px;font-size:.75rem;color:var(--muted);display:flex;gap:16px;">
+          <span style="color:var(--g-main);">■ Tersedia (${avail})</span>
+          <span style="color:var(--red);">■ Terisi (${k.taken.length})</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPemesanan(){
+  document.getElementById('pemesananTbody').innerHTML=PEMESANAN_DATA.map(p=>`
+    <tr>
+      <td class="td-bold" style="font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--g-main);">${p.code}</td>
+      <td>${p.nama}</td>
+      <td>${p.from} → ${p.to}</td>
+      <td>${p.tgl} · ${p.dep}</td>
+      <td>${p.kursi.join(', ')}</td>
+      <td style="font-weight:700;color:var(--g-main);">Rp ${p.total.toLocaleString('id-ID')}</td>
+      <td><span class="status-dot ${p.status==='Terkonfirmasi'?'konfirmasi':p.status==='Menunggu'?'pending':'batal'}"><span class="dot"></span>${p.status}</span></td>
+      <td><button class="act-btn view">Detail</button></td>
+    </tr>`).join('');
+}
+
+function renderVerif(){
+  document.getElementById('verifTbody').innerHTML=VERIF_DATA.map((v,i)=>`
+    <tr>
+      <td class="td-bold" style="font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--g-main);font-size:.95rem;">${v.code}</td>
+      <td>${v.nama}</td>
+      <td>${v.nik}</td>
+      <td>${v.from}→${v.to}</td>
+      <td>${v.kursi}</td>
+      <td>${v.pay}</td>
+      <td><span class="status-dot ${v.status==='Terverifikasi'?'konfirmasi':'pending'}"><span class="dot"></span>${v.status}</span></td>
+      <td><div class="act-btns">
+        ${v.status==='Menunggu'?`<button class="act-btn verif" onclick="verifikasiData(${i})">Verifikasi</button>`:''}
+        <button class="act-btn view">Detail</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function verifikasiData(i){
+  if(confirm(`Verifikasi penumpang "${VERIF_DATA[i].nama}"?`)){
+    VERIF_DATA[i].status='Terverifikasi';
+    renderVerif();
+  }
+}
+
+function hapus(type,id){
+  if(confirm('Hapus data ini?')){
+    if(type==='bus'){const idx=BUS_DATA.findIndex(b=>b.id===id);if(idx>-1){BUS_DATA.splice(idx,1);renderBus();}}
+  }
+}
+
+// Sidebar
+function switchSidebar(el,pane){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+pane).classList.add('active');
+  const titles={dashboard:'DASHBOARD OPERATOR',bus:'MANAJEMEN DATA BUS',jadwal:'JADWAL KEBERANGKATAN',kursi:'KETERSEDIAAN KURSI',pemesanan:'DATA PEMESANAN TIKET',penumpang:'VERIFIKASI PENUMPANG'};
+  document.getElementById('topbarTitle').textContent=titles[pane]||'OPERATOR';
+  if(pane==='bus')renderBus();
+  if(pane==='jadwal')renderJadwal();
+  if(pane==='kursi')renderKursi();
+  if(pane==='pemesanan')renderPemesanan();
+  if(pane==='penumpang')renderVerif();
+}
+
+// Modal
+const MODAL_FORMS={
+  bus:`
+    <div class="form-row"><div class="mf"><label>No. Polisi</label><input placeholder="B-XXXX-ALS"/></div><div class="mf"><label>Merek/Tipe</label><input placeholder="Mercedes-Benz OH 1626"/></div></div>
+    <div class="form-row"><div class="mf"><label>Kelas</label><select><option>Bisnis AC</option><option>Executive Sleeper</option><option>VIP Double Decker</option></select></div><div class="mf"><label>Kapasitas Kursi</label><input type="number" placeholder="32"/></div></div>
+    <div class="form-row"><div class="mf"><label>Tahun</label><input type="number" placeholder="2023"/></div><div class="mf"><label>Status</label><select><option>Aktif</option><option>Perawatan</option><option>Non-aktif</option></select></div></div>
+    <button class="save-btn" onclick="closeModal();alert('Data bus berhasil disimpan!')">💾 Simpan Data Bus</button>`,
+  jadwal:`
+    <div class="form-row"><div class="mf"><label>Kota Asal</label><select><option>Bandar Lampung</option><option>Jakarta</option><option>Medan</option><option>Padang</option></select></div><div class="mf"><label>Kota Tujuan</label><select><option>Jakarta</option><option>Medan</option><option>Padang</option><option>Surabaya</option></select></div></div>
+    <div class="form-row"><div class="mf"><label>Bus</label><select><option>B-2241-ALS</option><option>B-1875-ALS</option><option>B-0934-ALS</option></select></div><div class="mf"><label>Kelas</label><select><option>Bisnis AC</option><option>Executive Sleeper</option><option>VIP Double Decker</option></select></div></div>
+    <div class="form-row"><div class="mf"><label>Jam Berangkat</label><input type="time"/></div><div class="mf"><label>Harga Tiket</label><input type="number" placeholder="180000"/></div></div>
+    <button class="save-btn" onclick="closeModal();alert('Jadwal berhasil ditambahkan!')">💾 Simpan Jadwal</button>`,
+};
+
+function openModal(type,id){
+  const titles={bus:'TAMBAH DATA BUS',editbus:'EDIT DATA BUS',jadwal:'TAMBAH JADWAL'};
+  document.getElementById('modalTitle').textContent=titles[type]||'TAMBAH DATA';
+  document.getElementById('modalBody').innerHTML=MODAL_FORMS[type==='editbus'?'bus':type]||'';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))closeModal();});
+</script>
+</body>
+</html>
